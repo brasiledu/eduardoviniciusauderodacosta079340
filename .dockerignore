@@ -1,0 +1,40 @@
+# Node modules
+node_modules
+npm-debug.log
+yarn-error.log
+
+# Build outputs
+dist
+.angular
+
+# IDE
+.vscode
+.idea
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Git
+.git
+.gitignore
+
+# Testing
+coverage
+*.spec.ts
+
+# Environment
+.env
+.env.local
+
+# Documentation
+README.md
+docs
+
+# Python (venv)
+venv
+__pycache__
+*.pyc
