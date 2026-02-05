@@ -14,7 +14,7 @@ Sistema de gerenciamento de Pets e Tutores desenvolvido em Angular para o Proces
 
 - **Angular 21** - Framework principal
 - **TypeScript** - Linguagem de programação
-- **Tailwind CSS v3** - Framework de estilização (prioridade do edital)
+- **Tailwind CSS v3** - Framework de estilização
 - **RxJS** - Programação reativa
 - **Jasmine/Karma** - Testes unitários
 - **Docker** - Containerização
@@ -63,7 +63,7 @@ Os módulos de `Pets` e `Tutores` são carregados sob demanda para otimizar a pe
 
 ## Funcionalidades Implementadas
 
-### 🔐 Autenticação
+### Autenticação
 - Login com email e senha
 - Refresh token automático
 - Interceptor HTTP para adicionar token
