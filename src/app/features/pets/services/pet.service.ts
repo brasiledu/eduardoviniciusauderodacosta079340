@@ -45,4 +45,10 @@ export class PetService {
   delete(id: number): Observable<void> {
     return this.http.delete<void>(`${this.apiUrl}/${id}`);
   }
+
+  uploadFoto(petId: number, foto: File): Observable<Pet> {
+    const formData = new FormData();
+    formData.append('foto', foto);
+    return this.http.post<Pet>(`${this.apiUrl}/${petId}/fotos`, formData);
+  }
 }
