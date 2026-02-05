@@ -64,7 +64,7 @@ Os módulos de `Pets` e `Tutores` são carregados sob demanda para otimizar a pe
 ## Funcionalidades Implementadas
 
 ### Autenticação
-- Login com email e senha
+- Login com email e senha (Mesmo login descrito na api, admin)
 - Refresh token automático
 - Interceptor HTTP para adicionar token
 - Guard de rota para proteção de páginas
