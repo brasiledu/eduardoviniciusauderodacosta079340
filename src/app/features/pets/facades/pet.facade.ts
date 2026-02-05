@@ -1,7 +1,16 @@
 import { Injectable, inject } from '@angular/core';
-import { BehaviorSubject, Observable, map, finalize } from 'rxjs';
+import { BehaviorSubject, Observable, map, finalize, tap, switchMap } from 'rxjs';
 import { PetService } from '../services/pet.service';
 import { Pet, PetFilter, PetResponse } from '../models/pet.model';
+import { TutorService } from '../../tutores/services/tutor.service';
+import { Tutor } from '../../tutores/models/tutor.model';
+
+export interface PetDetailState {
+  pet: Pet | null;
+  tutor: Tutor | null;
+  loading: boolean;
+  error: string | null;
+}
 
 export interface PetState {
   pets: Pet[];
@@ -12,6 +21,11 @@ export interface PetState {
   currentPage: number;
   pageSize: number;
   searchTerm: string;
+  // Estado para detalhes
+  selectedPet: Pet | null;
+  selectedTutor: Tutor | null;
+  detailLoading: boolean;
+  detailError: string | null;
 }
 
 const initialState: PetState = {
@@ -22,7 +36,11 @@ const initialState: PetState = {
   totalPages: 0,
   currentPage: 0,
   pageSize: 10,
-  searchTerm: ''
+  searchTerm: '',
+  selectedPet: null,
+  selectedTutor: null,
+  detailLoading: false,
+  detailError: null
 };
 
 @Injectable({
@@ -30,6 +48,7 @@ const initialState: PetState = {
 })
 export class PetFacade {
   private readonly petService = inject(PetService);
+  private readonly tutorService = inject(TutorService);
   
   // Estado privado com BehaviorSubject
   private readonly _state$ = new BehaviorSubject<PetState>(initialState);
@@ -43,6 +62,12 @@ export class PetFacade {
   readonly totalPages$ = this._state$.pipe(map(state => state.totalPages));
   readonly currentPage$ = this._state$.pipe(map(state => state.currentPage));
   readonly pageSize$ = this._state$.pipe(map(state => state.pageSize));
+  
+  // Seletores para detalhes
+  readonly selectedPet$ = this._state$.pipe(map(state => state.selectedPet));
+  readonly selectedTutor$ = this._state$.pipe(map(state => state.selectedTutor));
+  readonly detailLoading$ = this._state$.pipe(map(state => state.detailLoading));
+  readonly detailError$ = this._state$.pipe(map(state => state.detailError));
 
   // Getter para acessar o estado atual
   private get state(): PetState {
@@ -143,5 +168,68 @@ export class PetFacade {
     return this.petService.delete(id).pipe(
       finalize(() => this.loadPets())
     );
+  }
+
+  /**
+   * Carrega os detalhes de um pet pelo ID
+   * Se o pet tiver tutorId, também carrega os dados do tutor
+   */
+  loadPetDetails(id: number): void {
+    this.setState({ detailLoading: true, detailError: null, selectedPet: null, selectedTutor: null });
+
+    this.petService.getById(id)
+      .pipe(
+        tap(pet => this.setState({ selectedPet: pet })),
+        switchMap(pet => {
+          // Se o pet tem tutorId, busca os dados do tutor
+          if (pet.tutorId) {
+            return this.tutorService.getById(pet.tutorId).pipe(
+              tap(tutor => this.setState({ selectedTutor: tutor }))
+            );
+          }
+          return [];
+        }),
+        finalize(() => this.setState({ detailLoading: false }))
+      )
+      .subscribe({
+        error: (error) => {
+          this.setState({ 
+            detailError: error.message || 'Erro ao carregar detalhes do pet',
+            detailLoading: false
+          });
+        }
+      });
+  }
+
+  /**
+   * Cria um novo pet
+   */
+  createPet(pet: Partial<Pet>): Observable<Pet> {
+    return this.petService.create(pet);
+  }
+
+  /**
+   * Atualiza um pet existente
+   */
+  updatePet(id: number, pet: Partial<Pet>): Observable<Pet> {
+    return this.petService.update(id, pet);
+  }
+
+  /**
+   * Faz upload da foto do pet
+   */
+  uploadPetFoto(petId: number, foto: File): Observable<Pet> {
+    return this.petService.uploadFoto(petId, foto);
+  }
+
+  /**
+   * Limpa os dados de detalhes
+   */
+  clearPetDetails(): void {
+    this.setState({ 
+      selectedPet: null, 
+      selectedTutor: null, 
+      detailError: null 
+    });
   }
 }
