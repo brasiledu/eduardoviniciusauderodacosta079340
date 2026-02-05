@@ -2,6 +2,12 @@
 
 Sistema de gerenciamento de Pets e Tutores desenvolvido em Angular para o Processo seletivo da SEPLAG/MT.
 
+## 📋 Status do Projeto
+
+- ✅ **ETAPA 1** - Autenticação (Login + Interceptor)
+- ✅ **ETAPA 2** - Módulo Pets (CRUD Completo)
+- ✅ **ETAPA 3** - Módulo Tutores (CRUD Completo)
+
 ## Tecnologias Utilizadas
 
 - **Angular 21** - Framework principal
@@ -23,7 +29,15 @@ src/app/
 ├── features/                # Módulos de funcionalidades
 │   ├── auth/                # Autenticação (Login)
 │   ├── pets/                # CRUD de Pets (Lazy Loaded)
+│   │   ├── models/          # Pet, PetResponse, PetFilter
+│   │   ├── services/        # PetService (HttpClient)
+│   │   ├── facades/         # PetFacade (BehaviorSubject)
+│   │   └── pages/           # pet-list, pet-form, pet-detail
 │   └── tutores/             # CRUD de Tutores (Lazy Loaded)
+│       ├── models/          # Tutor, TutorResponse, TutorFilter
+│       ├── services/        # TutorService (HttpClient)
+│       ├── facades/         # TutorFacade (BehaviorSubject)
+│       └── pages/           # tutor-list, tutor-form, tutor-detail
 └── app.routes.ts            # Configuração de rotas
 ```
 
@@ -41,6 +55,31 @@ O Facade utiliza `BehaviorSubject` do RxJS para gerenciar o estado reativo da ap
 
 ### Lazy Loading
 Os módulos de `Pets` e `Tutores` são carregados sob demanda para otimizar a performance inicial.
+
+## Funcionalidades Implementadas
+
+### 🔐 Autenticação
+- Login com email e senha
+- Refresh token automático
+- Interceptor HTTP para adicionar token
+- Guard de rota para proteção de páginas
+
+### 🐾 Módulo Pets
+- ✅ Listar pets com paginação
+- ✅ Buscar pets por nome
+- ✅ Criar novo pet
+- ✅ Editar pet existente
+- ✅ Visualizar detalhes do pet
+- ✅ Excluir pet
+
+### 👤 Módulo Tutores
+- ✅ Listar tutores com paginação
+- ✅ Buscar tutores por nome
+- ✅ Criar novo tutor
+- ✅ Editar tutor existente
+- ✅ Visualizar detalhes do tutor
+- ✅ Excluir tutor
+- ✅ Formatação automática de CPF e telefone
 
 ## Autenticação
 
