@@ -3,13 +3,13 @@ import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { Router, ActivatedRoute, RouterModule } from '@angular/router';
 import { PetFacade } from '../../facades/pet.facade';
-import { LoadingSpinnerComponent } from '../../../../shared/components/loading-spinner/loading-spinner.component';
+import { TutorFacade } from '../../../tutores/facades/tutor.facade';
 import { finalize, switchMap } from 'rxjs';
 
 @Component({
   selector: 'app-pet-form',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, RouterModule, LoadingSpinnerComponent],
+  imports: [CommonModule, ReactiveFormsModule, RouterModule],
   template: `
     <div class="container mx-auto px-4 py-8 max-w-2xl">
       <!-- Header -->
@@ -111,6 +111,37 @@ import { finalize, switchMap } from 'rxjs';
             </p>
           </div>
 
+          <!-- Tutor (Opcional) -->
+          <div class="mb-4">
+            <label for="tutorId" class="block text-sm font-medium text-gray-700 mb-2">
+              Tutor (Opcional)
+            </label>
+            <div class="flex gap-2">
+              <select
+                id="tutorId"
+                formControlName="tutorId"
+                class="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none"
+              >
+                <option [value]="null">Sem tutor</option>
+                <option *ngFor="let tutor of tutores$ | async" [value]="tutor.id">
+                  {{ tutor.nome }} - {{ formatCPF(tutor.cpf) }}
+                </option>
+              </select>
+              <button
+                type="button"
+                routerLink="/tutores/novo"
+                class="px-4 py-2 bg-primary-50 text-primary-600 font-medium rounded-lg hover:bg-primary-100 transition-colors"
+                title="Cadastrar novo tutor">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+                </svg>
+              </button>
+            </div>
+            <p class="text-xs text-gray-500 mt-1">
+              Você pode vincular este pet a um tutor existente ou deixar sem tutor
+            </p>
+          </div>
+
           <!-- Upload de Foto -->
           <div class="mb-6">
             <label class="block text-sm font-medium text-gray-700 mb-2">
@@ -194,6 +225,7 @@ import { finalize, switchMap } from 'rxjs';
 export class PetFormComponent implements OnInit {
   private readonly fb = inject(FormBuilder);
   private readonly petFacade = inject(PetFacade);
+  private readonly tutorFacade = inject(TutorFacade);
   private readonly router = inject(Router);
   private readonly route = inject(ActivatedRoute);
 
@@ -205,9 +237,18 @@ export class PetFormComponent implements OnInit {
   photoPreview: string | null = null;
   petId: number | null = null;
 
+  // Observable de tutores
+  readonly tutores$ = this.tutorFacade.tutores$;
+
   ngOnInit(): void {
     this.initForm();
     this.checkEditMode();
+    this.loadTutores();
+  }
+
+  private loadTutores(): void {
+    // Carrega todos os tutores para o select
+    this.tutorFacade.loadTutores({ page: 0, size: 1000 });
   }
 
   private initForm(): void {
@@ -328,5 +369,10 @@ export class PetFormComponent implements OnInit {
     if (field.errors['max']) return `Valor máximo: ${field.errors['max'].max}`;
 
     return 'Campo inválido';
+  }
+
+  formatCPF(cpf: string): string {
+    if (!cpf) return '';
+    return cpf.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, '$1.$2.$3-$4');
   }
 }
