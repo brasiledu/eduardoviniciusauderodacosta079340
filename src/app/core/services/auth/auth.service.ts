@@ -52,8 +52,8 @@ export class AuthService {
   }
 
   private setTokens(response: LoginResponse): void {
-    localStorage.setItem(ACCESS_TOKEN_KEY, response.accessToken);
-    localStorage.setItem(REFRESH_TOKEN_KEY, response.refreshToken);
+    localStorage.setItem(ACCESS_TOKEN_KEY, response.access_token);
+    localStorage.setItem(REFRESH_TOKEN_KEY, response.refresh_token);
     this.isAuthenticatedSubject.next(true);
   }
 

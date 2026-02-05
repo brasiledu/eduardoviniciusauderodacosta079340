@@ -25,34 +25,34 @@ import { LoadingSpinnerComponent } from '../../../../shared/components/loading-s
 
         <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="space-y-6">
           <div>
-            <label for="email" class="block text-sm font-medium text-gray-700 mb-1">E-mail</label>
+            <label for="username" class="block text-sm font-medium text-gray-700 mb-1">Usuário</label>
             <input
-              id="email"
-              type="email"
-              formControlName="email"
+              id="username"
+              type="text"
+              formControlName="username"
               class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all outline-none"
-              [class.border-red-500]="loginForm.get('email')?.invalid && loginForm.get('email')?.touched"
-              placeholder="seu@email.com"
+              [class.border-red-500]="loginForm.get('username')?.invalid && loginForm.get('username')?.touched"
+              placeholder="admin"
             />
-            <p *ngIf="loginForm.get('email')?.invalid && loginForm.get('email')?.touched" 
+            <p *ngIf="loginForm.get('username')?.invalid && loginForm.get('username')?.touched" 
                class="mt-1 text-sm text-red-500">
-              E-mail inválido
+              Usuário é obrigatório (mínimo 3 caracteres)
             </p>
           </div>
 
           <div>
-            <label for="senha" class="block text-sm font-medium text-gray-700 mb-1">Senha</label>
+            <label for="password" class="block text-sm font-medium text-gray-700 mb-1">Senha</label>
             <input
-              id="senha"
+              id="password"
               type="password"
-              formControlName="senha"
+              formControlName="password"
               class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all outline-none"
-              [class.border-red-500]="loginForm.get('senha')?.invalid && loginForm.get('senha')?.touched"
+              [class.border-red-500]="loginForm.get('password')?.invalid && loginForm.get('password')?.touched"
               placeholder="••••••••"
             />
-            <p *ngIf="loginForm.get('senha')?.invalid && loginForm.get('senha')?.touched" 
+            <p *ngIf="loginForm.get('password')?.invalid && loginForm.get('password')?.touched" 
                class="mt-1 text-sm text-red-500">
-              Senha é obrigatória
+              Senha é obrigatória (mínimo 3 caracteres)
             </p>
           </div>
 
@@ -79,8 +79,8 @@ export class LoginComponent {
   private readonly router = inject(Router);
 
   loginForm: FormGroup = this.fb.group({
-    email: ['', [Validators.required, Validators.email]],
-    senha: ['', [Validators.required, Validators.minLength(3)]]
+    username: ['', [Validators.required, Validators.minLength(3)]],
+    password: ['', [Validators.required, Validators.minLength(3)]]
   });
 
   isLoading = false;

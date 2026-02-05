@@ -46,8 +46,8 @@ function handle401Error(request: HttpRequest<unknown>, next: HttpHandlerFn, auth
     return authService.refreshToken().pipe(
       switchMap((response) => {
         isRefreshing = false;
-        refreshTokenSubject.next(response.accessToken);
-        return next(addTokenToRequest(request, response.accessToken));
+        refreshTokenSubject.next(response.access_token);
+        return next(addTokenToRequest(request, response.access_token));
       }),
       catchError((error) => {
         isRefreshing = false;
