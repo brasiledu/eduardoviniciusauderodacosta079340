@@ -1,7 +1,7 @@
 import { Injectable, inject } from '@angular/core';
-import { BehaviorSubject, Observable, map, finalize } from 'rxjs';
+import { BehaviorSubject, Observable, map, finalize, tap } from 'rxjs';
 import { TutorService } from '../services/tutor.service';
-import { Tutor, TutorFilter, TutorResponse } from '../models/tutor.model';
+import { Tutor, TutorFilter, TutorResponse, PetVinculado } from '../models/tutor.model';
 
 export interface TutorState {
   tutores: Tutor[];
@@ -12,6 +12,11 @@ export interface TutorState {
   currentPage: number;
   pageSize: number;
   searchTerm: string;
+  // Estado para detalhes
+  selectedTutor: Tutor | null;
+  selectedTutorPets: PetVinculado[];
+  detailLoading: boolean;
+  detailError: string | null;
 }
 
 const initialState: TutorState = {
@@ -22,7 +27,11 @@ const initialState: TutorState = {
   totalPages: 0,
   currentPage: 0,
   pageSize: 10,
-  searchTerm: ''
+  searchTerm: '',
+  selectedTutor: null,
+  selectedTutorPets: [],
+  detailLoading: false,
+  detailError: null
 };
 
 @Injectable({
@@ -43,6 +52,12 @@ export class TutorFacade {
   readonly totalPages$ = this._state$.pipe(map(state => state.totalPages));
   readonly currentPage$ = this._state$.pipe(map(state => state.currentPage));
   readonly pageSize$ = this._state$.pipe(map(state => state.pageSize));
+  
+  // Seletores para detalhes
+  readonly selectedTutor$ = this._state$.pipe(map(state => state.selectedTutor));
+  readonly selectedTutorPets$ = this._state$.pipe(map(state => state.selectedTutorPets));
+  readonly detailLoading$ = this._state$.pipe(map(state => state.detailLoading));
+  readonly detailError$ = this._state$.pipe(map(state => state.detailError));
 
   // Getter para acessar o estado atual
   private get state(): TutorState {
@@ -161,5 +176,73 @@ export class TutorFacade {
   // Resetar estado
   resetState(): void {
     this._state$.next(initialState);
+  }
+
+  /**
+   * Carrega os detalhes de um tutor (já inclui os pets vinculados)
+   */
+  loadTutorDetails(id: number): void {
+    this.setState({ detailLoading: true, detailError: null, selectedTutor: null, selectedTutorPets: [] });
+
+    this.tutorService.getById(id)
+      .pipe(
+        finalize(() => this.setState({ detailLoading: false }))
+      )
+      .subscribe({
+        next: (tutor) => {
+          this.setState({ 
+            selectedTutor: tutor,
+            selectedTutorPets: tutor.pets || []
+          });
+        },
+        error: (error) => {
+          this.setState({ 
+            detailError: error.message || 'Erro ao carregar detalhes do tutor',
+            detailLoading: false
+          });
+        }
+      });
+  }
+
+  /**
+   * Vincula um pet ao tutor
+   */
+  linkPetToTutor(tutorId: number, petId: number): Observable<void> {
+    return this.tutorService.linkPetToTutor(tutorId, petId).pipe(
+      tap(() => {
+        // Recarrega os detalhes do tutor para atualizar a lista de pets
+        this.loadTutorDetails(tutorId);
+      })
+    );
+  }
+
+  /**
+   * Remove o vínculo de um pet com o tutor
+   */
+  unlinkPetFromTutor(tutorId: number, petId: number): Observable<void> {
+    return this.tutorService.unlinkPetFromTutor(tutorId, petId).pipe(
+      tap(() => {
+        // Recarrega os detalhes do tutor para atualizar a lista de pets
+        this.loadTutorDetails(tutorId);
+      })
+    );
+  }
+
+  /**
+   * Faz upload da foto do tutor
+   */
+  uploadTutorFoto(tutorId: number, foto: File): Observable<any> {
+    return this.tutorService.uploadFoto(tutorId, foto);
+  }
+
+  /**
+   * Limpa os dados de detalhes
+   */
+  clearTutorDetails(): void {
+    this.setState({ 
+      selectedTutor: null, 
+      selectedTutorPets: [],
+      detailError: null 
+    });
   }
 }
