@@ -3,6 +3,7 @@ import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../../../environments/environment';
 import { Tutor, TutorResponse, TutorFilter } from '../models/tutor.model';
+import { Pet } from '../../pets/models/pet.model';
 
 @Injectable({
   providedIn: 'root'
@@ -47,5 +48,31 @@ export class TutorService {
 
   delete(id: number): Observable<void> {
     return this.http.delete<void>(`${this.apiUrl}/${id}`);
+  }
+
+  /**
+   * Vincula um pet ao tutor
+   * POST /v1/tutores/{id}/pets/{petId}
+   */
+  linkPetToTutor(tutorId: number, petId: number): Observable<void> {
+    return this.http.post<void>(`${this.apiUrl}/${tutorId}/pets/${petId}`, {});
+  }
+
+  /**
+   * Remove o vínculo de um pet com o tutor
+   * DELETE /v1/tutores/{id}/pets/{petId}
+   */
+  unlinkPetFromTutor(tutorId: number, petId: number): Observable<void> {
+    return this.http.delete<void>(`${this.apiUrl}/${tutorId}/pets/${petId}`);
+  }
+
+  /**
+   * Faz upload da foto do tutor
+   * POST /v1/tutores/{id}/fotos
+   */
+  uploadFoto(tutorId: number, foto: File): Observable<any> {
+    const formData = new FormData();
+    formData.append('foto', foto);
+    return this.http.post(`${this.apiUrl}/${tutorId}/fotos`, formData);
   }
 }

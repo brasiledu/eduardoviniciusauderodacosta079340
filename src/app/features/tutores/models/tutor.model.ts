@@ -1,3 +1,16 @@
+export interface PetVinculado {
+  id: number;
+  nome: string;
+  raca: string;
+  idade: number;
+  foto?: {
+    id: number;
+    nome: string;
+    contentType: string;
+    url: string;
+  };
+}
+
 export interface Tutor {
   id: number;
   nome: string;
@@ -6,6 +19,13 @@ export interface Tutor {
   telefone: string;
   endereco?: string;
   dataCadastro?: string;
+  foto?: {
+    id: number;
+    nome: string;
+    contentType: string;
+    url: string;
+  };
+  pets?: PetVinculado[];
 }
 
 export interface TutorResponse {
